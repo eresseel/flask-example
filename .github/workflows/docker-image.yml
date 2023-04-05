@@ -32,7 +32,6 @@ jobs:
           path: /tmp/${{ env.ARTIFACT_NAME }}.tar
 
   deploy:
-    needs: test
     runs-on: ubuntu-20.04
     steps:
       - name: Log in to Docker Hub

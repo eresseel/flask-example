@@ -7,9 +7,14 @@ import os
 
 app = Flask(__name__)
 load_dotenv()
-r = redis.Redis(host=os.getenv("REDIS_HOST"), port=os.getenv("REDIS_PORT"), \
-    password=os.environ["REDIS_PASSWORD"])
 counter = Value('i', 0)
+
+try:
+    r = redis.Redis(host=os.getenv("REDIS_HOST"), port=os.getenv("REDIS_PORT"), \
+        password=os.environ["REDIS_PASSWORD"])
+    r.ping()
+except Exception as ex:
+    exit('Failed to connect, terminating.')
  
 def get_git_revision_short_hash():
     return subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode().strip()

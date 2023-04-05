@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from multiprocessing import Value
 from dotenv import load_dotenv
 import subprocess
@@ -27,7 +27,7 @@ def index():
 def healthz():
     return render_template('healthz.html')
 
-@app.route('/alert')
+@app.route('/alert', methods=['GET', 'POST'])
 def alert(alert=None):
     with counter.get_lock():
         counter.value += 1

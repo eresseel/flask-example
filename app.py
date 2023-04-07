@@ -1,5 +1,4 @@
 from flask import Flask, render_template, request
-from multiprocessing import Value
 from dotenv import load_dotenv
 import subprocess
 import redis
@@ -7,7 +6,6 @@ import os
 
 app = Flask(__name__)
 load_dotenv()
-counter = Value('i', 0)
 
 try:
     r = redis.Redis(host=os.getenv("REDIS_HOST"), port=os.getenv("REDIS_PORT"), \
@@ -28,21 +26,18 @@ def healthz():
     return render_template('healthz.html')
 
 @app.route('/alert', methods=['GET', 'POST'])
-def alert(alert=None):
-    with counter.get_lock():
-        counter.value += 1
-        out = counter.value
-    r.mset({"counter": out})
-    return ""
+def alert():
+    r.incr('counter')
+    return 'Counter incremented'
 
 @app.route('/counter')
 def count(alert=None):
-    if r.exists("runner"):
-        out = r.get("counter").decode("utf-8")
+    if r.exists("counter"):
+        counter = r.get("counter").decode("utf-8")
     else:
-        out = counter.value
+        counter = 0
 
-    return render_template('counter.html', alert=out)
+    return render_template('counter.html', alert=counter)
 
 @app.route('/version')
 def version(git_sort_hash=None):
